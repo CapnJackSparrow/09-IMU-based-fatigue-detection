@@ -8,8 +8,8 @@ from sklearn.pipeline import make_pipeline
 
 ### expected flow is -
 ###
-### generate_df_list()      ##(this assumes the csvs are available all together in data2/ )
-### df_list_to_spectrograms_lists(df_list) 
+### df_list = generate_df_list()      ##(this assumes the csvs are available all together in data2/ )
+### spectrograms_list, t_list, f_list = df_list_to_spectrograms_lists(df_list)
 ### save_spectrographs(spectrograms_list, t_list, f_list)    ##will make a new spectrograms/ folder)
 
 
@@ -98,35 +98,46 @@ def save_spectrographs(spectrograms_list, t_list, f_list, output_dir='spectrogra
         Szz = spectrogram[:, :, 2]
 
         # Plot the spectrogram for each axis.
-        plt.pcolormesh(t_list[i], f_list[i], Sxx, shading='auto', norm='log', cmap="hsv")
+        plt.pcolormesh(t_list[i], f_list[i], Sxx, shading='auto', norm='log', cmap="binary")
+        plt.axis('off')
         #cmap = plt.colormaps['PiYG']
         #plt.ylabel('Frequency [Hz]')
         plt.ylim(0.1, 8)  # Set the limits to avoid zero frequency and noisy upper freqs
         plt.yscale('asinh')
         #plt.xlabel('Time [s]')
         #plt.title('Spectrogram of Accelerometer Data (X-axis)')
-        plt.savefig(f'{filename}_x.png')
+        plt.savefig(f'{filename}_x.png', bbox_inches='tight',transparent=True, pad_inches=0)
         plt.close()
 
-        plt.pcolormesh(t_list[i], f_list[i], Syy, shading='auto', norm='log', cmap="hsv")
+        plt.pcolormesh(t_list[i], f_list[i], Syy, shading='auto', norm='log', cmap="binary")
         #plt.ylabel('Frequency [Hz]')
+        plt.axis('off')
         plt.yscale('asinh')
         plt.ylim(0.1, 8)  # Set the limits to avoid zero frequency and noisy upper freqs
         #plt.xlabel('Time [s]')
         #plt.title('Spectrogram of Accelerometer Data (Y-axis)')
-        plt.savefig(f'{filename}_y.png')
+        plt.savefig(f'{filename}_y.png', bbox_inches='tight',transparent=True, pad_inches=0)
         plt.close()
 
-        plt.pcolormesh(t_list[i], f_list[i], Szz, shading='auto', norm='log', cmap="hsv")
+        plt.pcolormesh(t_list[i], f_list[i], Szz, shading='auto', norm='log', cmap="binary")
         #plt.ylabel('Frequency [Hz]')
+        plt.axis('off')
         plt.yscale('asinh')
         plt.ylim(0.1, 8)  # Set the limits to avoid zero frequency and noisy upper freqs
         #plt.xlabel('Time [s]')
         #plt.title('Spectrogram of Accelerometer Data (Z-axis)')
-        plt.savefig(f'{filename}_z.png')
+        plt.savefig(f'{filename}_z.png', bbox_inches='tight',transparent=True, pad_inches=0)
         plt.close()
 
 
+
+def load_images_from_folder(folder):
+    images = []
+    for filename in os.listdir(folder):
+        img = cv2.imread(os.path.join(folder,filename), cv2.IMREAD_GRAYSCALE)
+        if img is not None:
+            images.append(img)
+    return images
 
 
 
@@ -184,3 +195,5 @@ def generate_df_list():
                 #discards first 6th
                 df = df.iloc[9600:]
     return df_list
+
+    
