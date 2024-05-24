@@ -5,6 +5,7 @@ three columns represent X, Y, and Z axis accelerations. The function splits the
 data into windows and calculates FFT characteristics for each one, consolidating
 them into two cohesive DataFrames at the end.'''
 
+from itertools import chain
 import numpy as np
 import pandas as pd
 
@@ -17,12 +18,8 @@ def windows_FFT_features(data, window_size = 5):
                 respectively "Z_acceleration"
             windows_size (int): The size of the windows into which the input
                 DataFrame will be split; measured in seconds
-        Returns: pd.DataFrame, pd.DataFrame: Two DataFrames containing the
-        computed features:
-            - First DataFrame: Contains FFT numerical characteristics (e.g.,
-            dominant frequencies, entropy, etc.); one value in each cell.
-            - Second DataFrame: Contains FFT magnitude spectrograms; a list of
-            spectrum magnitudes in each cell.'''
+        Returns: pd.DataFrame: DataFrame containing the computed features (e.g.,
+            dominant frequencies, entropy, magnitudes, etc.).'''
 
     # Declare the input data sampling rate
     sampling_rate = 32 # [Hz]
@@ -201,4 +198,20 @@ def windows_FFT_features(data, window_size = 5):
         # Append magnitudes to the DataFrame
         magnitudes_df = pd.concat([magnitudes_df, magnitudes], ignore_index=True)
 
-    return features_df, magnitudes_df
+    # Create new column names for expanding the FFT magnitudes DataFrame to
+    # multiple columns
+    new_columns = [f"{column}_{i+1}" for column in magnitudes_df.columns[
+        0:3] for i in range(len(magnitudes_df.iloc[15,1]))]
+
+    # Expand the FFT magnitudes DataFrame cells (which are lists) along the
+    # columns (creating more columns)
+
+    magnitudes_df = pd.DataFrame([chain.from_iterable(
+            magnitude_list) for magnitude_list in magnitudes_df[
+                magnitudes_df.columns[0:3]].values], columns = new_columns)
+
+    # Join the features and magnitudes DataFrames
+
+    overall_features = pd.concat([features_df, magnitudes_df], axis = 1)
+
+    return overall_features

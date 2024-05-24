@@ -5,6 +5,7 @@ three columns represent X, Y, and Z axis accelerations. The function splits the
 data into windows and calculates Wavelet transform characteristics for each one,
 consolidating them into two cohesive DataFrame at the end.'''
 
+from itertools import chain
 import numpy as np
 import pandas as pd
 import pywt
@@ -180,4 +181,20 @@ def windows_Wavelet_features(data, window_size = 5):
         'Z_coeffs': coefficients_z
     })
 
-    return features_df, coefficients_df
+    # Create new column names for expanding the Wavelet transform coefficients
+    # DataFrame to multiple columns
+    new_columns = [f"{column}_{i+1}" for column in coefficients_df.columns[
+        0:3] for i in range(len(coefficients_df.iloc[15,1]))]
+
+    # Expand the Wavelet transform coefficients DataFrame cells (which are
+    # lists) along the columns (creating more columns)
+
+    coefficients_df = pd.DataFrame([chain.from_iterable(
+            magnitude_list) for magnitude_list in coefficients_df[
+                coefficients_df.columns[0:3]].values], columns = new_columns)
+
+    # Join the features and magnitudes DataFrames
+
+    overall_features = pd.concat([features_df, coefficients_df], axis = 1)
+
+    return overall_features
