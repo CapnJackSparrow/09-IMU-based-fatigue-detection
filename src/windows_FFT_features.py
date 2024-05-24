@@ -1,13 +1,12 @@
-'''This script defines a function that computes FFT features
-(e.g. mean, standard deviation, etc.) from accelerometer data captured by an
+'''This script defines a function that computes FFT features (e.g. amplitude
+spectrum, frequency components, etc.) from accelerometer data captured by an
 Inertial Measurement Unit (IMU). The input is a Pandas DataFrame whose first
 three columns represent X, Y, and Z axis accelerations. The function splits the
-data into windows and calculates statistical parameters for each one,
-consolidating them into a cohesive DataFrame at the end.'''
+data into windows and calculates FFT characteristics for each one, consolidating
+them into two cohesive DataFrames at the end.'''
 
 import numpy as np
 import pandas as pd
-from scipy.stats import entropy
 
 def windows_FFT_features(data, window_size = 5):
     '''Compute the FFT features of accelerometer data over windows of time
@@ -20,8 +19,8 @@ def windows_FFT_features(data, window_size = 5):
                 DataFrame will be split; measured in seconds
         Returns: pd.DataFrame, pd.DataFrame: Two DataFrames containing the
         computed features:
-            - First DataFrame: Contains FFT numerical features (e.g., dominant
-            frequencies, entropy, etc.); one value in each cell.
+            - First DataFrame: Contains FFT numerical characteristics (e.g.,
+            dominant frequencies, entropy, etc.); one value in each cell.
             - Second DataFrame: Contains FFT magnitude spectrograms; a list of
             spectrum magnitudes in each cell.'''
 
@@ -164,13 +163,13 @@ def windows_FFT_features(data, window_size = 5):
 
         # Retrieve features within the window interval
         features = {
-            # Retrieve the X-axis acceleration dominant frequnecy over the
+            # Retrieve the X-axis acceleration dominant frequency over the
             # window interval
             'dominant_freq_x': dominant_freq_x,
-            # Retrieve the Y-axis acceleration dominant frequnecy over the
+            # Retrieve the Y-axis acceleration dominant frequency over the
             # window interval
             'dominant_freq_y': dominant_freq_y,
-            # Retrieve the Z-axis acceleration dominant frequnecy over the
+            # Retrieve the Z-axis acceleration dominant frequency over the
             # window interval
             'dominant_freq_z': dominant_freq_z,
             # Retrieve X-axis acceleration entropy over the window interval
