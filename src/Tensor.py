@@ -10,6 +10,9 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.linear_model import ElasticNet
 from sklearn.pipeline import make_pipeline
+from src.windows_FFT_features import windows_FFT_features
+from src.params import TYPE
+from src.windows_statistical_features import windows_statistical_features
 
 
 def Tensor_data():
@@ -106,3 +109,27 @@ def chunk_label(Y, split_size):
     Y_split = pd.DataFrame(np.repeat(Y.values, split_size, axis=0))
     Y_split.columns = Y.columns
     return Y_split
+
+
+
+type = ['Acceleration', 'FFT','Statistics' 'Wavelet']
+def Tensor_generalize(type = 'Acceleration', window_size = 5):
+    df_list_Features = []
+    if type == 'FFT':
+    # Subject_list = [f'S{i}' for i in range(1,24)]
+        for subject in DataLoader().subjects:
+            for event in DataLoader().events:
+                data = DataLoader().load_ACC_data(subject,event)
+                df_features = windows_FFT_features(data, window_size = 5)
+                df_list_Features.append(df_features)
+    if type == 'Statistics':
+        for subject in DataLoader().subjects:
+            for event in DataLoader().events:
+                data = DataLoader().load_ACC_data(subject,event)
+                df_features = windows_statistical_features(data, window_size = 5)
+                df_list_Features.append(df_features)
+
+    else:
+        df_list_Features = Tensor_data()
+
+    return df_list_Features
