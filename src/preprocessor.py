@@ -5,7 +5,7 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 
-def preprocessing(df: pd.DataFrame, n_components: int = 100) -> pd.DataFrame:
+def preprocessing(df: pd.DataFrame, n_components: int = 10) -> pd.DataFrame:
     """
     Preprocesses a Pandas DataFrame by:
     1. Standardizing the data using StandardScaler.
