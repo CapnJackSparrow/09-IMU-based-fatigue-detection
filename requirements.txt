@@ -3,5 +3,5 @@ pandas
 numpy 
 datetime
 requests
-sklearn
+scikit-learn
 
