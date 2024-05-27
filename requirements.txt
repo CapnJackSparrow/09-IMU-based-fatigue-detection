@@ -3,6 +3,5 @@ pandas
 numpy 
 datetime
 requests
-pickle
 sklearn
 
