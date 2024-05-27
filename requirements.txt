@@ -1,0 +1,7 @@
+streamlit
+pandas
+numpy 
+PIL
+datetime
+requests
+pickle
