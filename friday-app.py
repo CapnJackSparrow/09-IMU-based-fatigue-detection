@@ -1,8 +1,10 @@
 import streamlit as st
 import pandas as pd
+import numpy as np 
 
 import datetime
 import requests
+import pickle
 
 def load_data(csv_file_path):
     """
@@ -31,20 +33,25 @@ def load_data(csv_file_path):
 
         # Rename columns (adjust column names as needed)
         column_mapping = {
-            0: 'Time [s]',
-            1: 'X_acceleration',
-            2: 'Y_acceleration',
-            3: 'Z_acceleration',
-            4: 'Absolute_acceleration'
+            0: 'time',
+            1: 'seconds_elapsed',
+            2: 'z',
+            3: 'y',
+            4: 'x'
         }
         df.rename(columns=column_mapping, inplace=True)
+
+        ###truncate to ten sf
+        df['time'] = df['time'].astype(str).str[:10] + '.' + df['time'].astype(str).str[10:]
 
         # Convert all columns to numeric
         for col in df.columns:
             df[col] = pd.to_numeric(df[col], errors='coerce')
 
+
+
         # Compute differences between consecutive time values
-        time_diff = df['Time [s]'].diff()
+        time_diff = df['time'].diff()
 
         # Calculate the mean of time differences
         mean_time_diff = round(time_diff.mean(), 3)
@@ -66,7 +73,7 @@ def load_data(csv_file_path):
 
         df = df.resample('31.25ms').mean()
 
-        return df[['X_acceleration', 'Y_acceleration', 'Z_acceleration']]
+        return df[['x', 'y', 'z']]
 
     except FileNotFoundError:
         print(f"Error: CSV file '{csv_file_path}' not found.")
@@ -76,6 +83,13 @@ def load_data(csv_file_path):
 
 from PIL import Image
 
+# load the model from disk
+
+filename = "voting_clf_model.pkl"
+loaded_model = pickle.load(open(filename, 'rb'))
+#result = loaded_model.score(X_test, Y_test)
+#print(result)
+
 logo = Image.open('logo_v01.jpg')
 
 st.image(logo, caption="he sad")
@@ -84,16 +98,36 @@ st.title("Some text, and a logo?")
 
 st.write("First time? Upload a .csv file")
 
+# user_s_rate = st.radio(
+#     "Your data's sampling rate?",
+#     ["32Hz", "96Hz", "100Hz", "200Hz", "500Hz", "Attempt auto-detection"],
+#     index=None,
+# )
+
+#st.write("You selected:", user_s_rate)
+
 uploaded_file = st.file_uploader("Upload your .csv here", type=["csv", "zip"])
 
 if uploaded_file is not None:
     
     dataframe = load_data(uploaded_file)
 
+    ### should be a function, cheap and nasty version for monday morning
+    chunk_of_90 = dataframe[:2880]
+    flat_chunk_of_90 = chunk_of_90.to_numpy().flatten()
+    dataframe = flat_chunk_of_90
+    dataframe =  dataframe.reshape(1, -1) #the model asked for this reshaping, for one sample
+
     ##add pre-processing here
-
+    
     ##add getting a prediction here
+    new_pred = loaded_model.predict(dataframe)
+    new_pred_proba = loaded_model.predict_proba(dataframe)
 
-    st.button('Does this button do anything?')
+    class_names = ['not tired', 'tired']
 
-    st.write(f'Your file is {len(dataframe)} and that is a function run on a dataframe!')
+    pred_class = class_names[np.argmax(new_pred)]
+
+    not_tired_conf_pc = "{:.0%}".format(new_pred_proba[0][0])
+
+    st.write(f'You are {pred_class}! We are {not_tired_conf_pc} percent sure.')
