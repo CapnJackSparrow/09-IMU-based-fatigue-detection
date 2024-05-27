@@ -5,3 +5,5 @@ PIL
 datetime
 requests
 pickle
+sklearn
+
