@@ -12,8 +12,6 @@ import time
 
 from sklearn.preprocessing import RobustScaler
 
-
-
 def load_short_data(csv_file_path):
     """
     Reads a CSV file, checks if the time vector is equally spaced,
@@ -191,7 +189,7 @@ if uploaded_file is not None:
 
             pred_class = class_names[int(new_pred)]
 
-            not_tired_conf_pc = "{:.0%}".format(new_pred_proba[0][0])
+            not_tired_conf_pc = "{:.0%}".format(new_pred_proba[0][int(new_pred)])
 
 
     if model_type == "Long":
@@ -211,7 +209,7 @@ if uploaded_file is not None:
 
             pred_class = class_names[int(new_pred)]
 
-            not_tired_conf_pc = "{:.0%}".format(new_pred_proba[0][0])
+            not_tired_conf_pc = "{:.0%}".format(new_pred_proba[0][int(new_pred)])
 
     if pred_class is not None:
         progress_text = "Analyzing motion data... please wait."
